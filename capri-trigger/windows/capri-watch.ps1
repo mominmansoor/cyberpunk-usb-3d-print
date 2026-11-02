@@ -53,11 +53,9 @@ function Test-KeyDrive([string]$root) {
 function Start-Capri([string]$root) {
     $target = Find-Capri
     if (-not $target) { Log "Key found on $root but Capri.exe was not found. Re-run install.ps1 with -CapriPath."; return }
-    $name = [IO.Path]::GetFileNameWithoutExtension($target)
-    if ($target -like "*.exe" -and (Get-Process -Name $name -ErrorAction SilentlyContinue)) {
-        Log "Key found on $root; Capri is already running."
-        return
-    }
+    # No "already running" check: Capri only ever runs one copy of herself, so starting her again
+    # just brings her back. (Her hidden input-recovery helper is also named Capri.exe and can
+    # outlive her, which fooled a process-name check.)
     try {
         Start-Process -FilePath $target -WorkingDirectory (Split-Path $target)
         Log "Key found on $root; started $target"
