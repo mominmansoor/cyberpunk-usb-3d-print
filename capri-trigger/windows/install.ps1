@@ -4,6 +4,12 @@
 
 param([string]$CapriPath = "")
 
+# Stop any watcher that's already running, so the new version takes over
+Stop-ScheduledTask -TaskName "Capri USB Trigger" -ErrorAction SilentlyContinue
+Get-CimInstance Win32_Process -Filter "Name = 'powershell.exe'" -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -like "*CapriTrigger\capri-watch.ps1*" } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+
 $dir = Join-Path $env:LOCALAPPDATA "CapriTrigger"
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
 Copy-Item -Path (Join-Path $PSScriptRoot "capri-watch.ps1") -Destination $dir -Force
@@ -20,6 +26,9 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 Register-ScheduledTask -TaskName "Capri USB Trigger" -Action $action -Trigger $trigger `
     -Settings $settings -Description "Starts Capri Desktop when a USB drive with capri.key is plugged in." -Force | Out-Null
 Start-ScheduledTask -TaskName "Capri USB Trigger"
+Start-Sleep -Seconds 3
+$log = Join-Path $dir "log.txt"
+if (Test-Path $log) { Write-Host "Watcher log:"; Get-Content $log -Tail 5 | ForEach-Object { Write-Host "  $_" } }
 
 Write-Host "Capri USB trigger installed and running."
 Write-Host "Copy capri.key (from the usb folder) to the top folder of your USB drive, then plug it in."

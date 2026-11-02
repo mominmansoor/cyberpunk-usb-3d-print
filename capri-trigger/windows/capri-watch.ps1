@@ -1,21 +1,34 @@
 # Capri USB trigger for Windows.
-# Waits for a drive to be plugged in. If the drive has capri.key in its top folder,
-# it starts Capri Desktop (unless Capri is already running).
+# Checks your drives every 2 seconds. When a drive with capri.key in its top folder
+# appears, it starts Capri Desktop (unless Capri is already running). Once per plug-in.
 # install.ps1 sets this up to run hidden every time you log in.
+# Log: %LOCALAPPDATA%\CapriTrigger\log.txt
 
 param(
     # Full path to Capri's .exe. Leave empty to search the usual install places.
-    [string]$CapriPath = ""
+    [string]$CapriPath = "",
+    [int]$IntervalSeconds = 2
 )
 
 $KeyFile = "capri.key"
+$LogFile = Join-Path $env:LOCALAPPDATA "CapriTrigger\log.txt"
+
+function Log([string]$msg) {
+    try {
+        $line = "{0}  {1}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $msg
+        Add-Content -Path $LogFile -Value $line
+        if ((Get-Item $LogFile).Length -gt 200KB) {
+            Get-Content $LogFile -Tail 200 | Set-Content $LogFile
+        }
+    } catch { }
+}
 
 function Find-Capri {
     if ($CapriPath -and (Test-Path $CapriPath)) { return $CapriPath }
     $candidates = @(
+        "$env:LOCALAPPDATA\Capri\Capri.exe",
         "$env:LOCALAPPDATA\Programs\Capri\Capri.exe",
         "$env:LOCALAPPDATA\Programs\capri-desktop\Capri.exe",
-        "$env:LOCALAPPDATA\Capri\Capri.exe",
         "$env:ProgramFiles\Capri\Capri.exe",
         "${env:ProgramFiles(x86)}\Capri\Capri.exe"
     )
@@ -30,25 +43,47 @@ function Find-Capri {
     return $null
 }
 
-function Start-CapriIfKey([string]$Drive) {
-    if (-not $Drive) { return }
-    $key = Join-Path ($Drive.TrimEnd('\') + '\') $KeyFile
-    if (-not (Test-Path $key)) { return }
-    $first = Get-Content -Path $key -TotalCount 1 -ErrorAction SilentlyContinue
-    if ($first -ne "CAPRI-KEY") { return }
-    if (Get-Process -Name "Capri" -ErrorAction SilentlyContinue) { return }
-    $target = Find-Capri
-    if ($target) { Start-Process -FilePath $target }
+function Test-KeyDrive([string]$root) {
+    $key = Join-Path $root $KeyFile
+    if (-not (Test-Path -LiteralPath $key)) { return $false }
+    $first = Get-Content -LiteralPath $key -TotalCount 1 -ErrorAction SilentlyContinue
+    return ($first -and $first.Trim() -eq "CAPRI-KEY")
 }
 
-# EventType 2 = a new drive arrived
-Register-CimIndicationEvent -ClassName Win32_VolumeChangeEvent -SourceIdentifier "CapriUsbArrive" `
-    -Filter "EventType = 2" | Out-Null
+function Start-Capri([string]$root) {
+    $target = Find-Capri
+    if (-not $target) { Log "Key found on $root but Capri.exe was not found. Re-run install.ps1 with -CapriPath."; return }
+    $name = [IO.Path]::GetFileNameWithoutExtension($target)
+    if ($target -like "*.exe" -and (Get-Process -Name $name -ErrorAction SilentlyContinue)) {
+        Log "Key found on $root; Capri is already running."
+        return
+    }
+    try {
+        Start-Process -FilePath $target -WorkingDirectory (Split-Path $target)
+        Log "Key found on $root; started $target"
+    } catch {
+        Log "Key found on $root; failed to start ${target}: $($_.Exception.Message)"
+    }
+}
+
+Log "Watcher started (checking every $IntervalSeconds s). Capri: $(Find-Capri)"
+$seen = @{}
 
 while ($true) {
-    $e = Wait-Event -SourceIdentifier "CapriUsbArrive"
-    $drive = $e.SourceEventArgs.NewEvent.DriveName
-    Remove-Event -EventIdentifier $e.EventIdentifier
-    Start-Sleep -Milliseconds 800   # give Windows a moment to finish mounting
-    try { Start-CapriIfKey $drive } catch { }
+    $now = @{}
+    try {
+        foreach ($d in [IO.DriveInfo]::GetDrives()) {
+            if (-not $d.IsReady) { continue }
+            if ($d.DriveType -eq [IO.DriveType]::Network) { continue }
+            $root = $d.RootDirectory.FullName
+            if (Test-KeyDrive $root) {
+                $now[$root] = $true
+                if (-not $seen.ContainsKey($root)) { Start-Capri $root }
+            }
+        }
+    } catch {
+        Log "Drive check error: $($_.Exception.Message)"
+    }
+    $seen = $now
+    Start-Sleep -Seconds $IntervalSeconds
 }
