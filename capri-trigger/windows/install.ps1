@@ -15,10 +15,12 @@ New-Item -ItemType Directory -Force -Path $dir | Out-Null
 Copy-Item -Path (Join-Path $PSScriptRoot "capri-watch.ps1") -Destination $dir -Force
 $script = Join-Path $dir "capri-watch.ps1"
 
-$taskArgs = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
+$taskArgs = "-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
 if ($CapriPath) { $taskArgs += " -CapriPath `"$CapriPath`"" }
 
-$action   = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $taskArgs
+# conhost --headless runs PowerShell with no console window at all, so nothing ever flashes
+# up on screen (and there's no window you could close by accident, which stops the watcher).
+$action   = New-ScheduledTaskAction -Execute "conhost.exe" -Argument ("--headless powershell.exe " + $taskArgs)
 # Starts at login, and checks every minute so the watcher comes back if anything ever stops it.
 # MultipleInstances IgnoreNew means it never runs twice.
 $atLogOn  = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
