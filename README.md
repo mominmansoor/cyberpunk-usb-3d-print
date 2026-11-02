@@ -19,11 +19,7 @@ In the viewer you can spin the model, pull it apart layer by layer, slide the mi
 | Body | One piece per half | Rear body and front frame per half, joined by two sliding dovetail rails |
 | Printed parts | 8 | 8 |
 
-### v1 Long, opened up
-![v1 exploded view](images/v1-exploded.jpg)
-
-### v2 Short, opened up
-![v2 exploded view](images/v2-exploded.jpg)
+![v1 Long and v2 Short side by side, both opened up to show every layer](images/v1-v2-exploded.jpg)
 
 The design shows the circuit pattern on both faces, so it looks the same whichever way up it sits.
 
@@ -35,25 +31,15 @@ The pictures above are the original colours, but every part prints in a single c
 
 ![Nine character themes for the v1 Cyberpunk USB: Capri, Lucy, David, Rebecca, Kiwi, Adam Smasher, D, Roman Carax and Talia Yang](images/themes-grid.jpg)
 
-| Theme | Body | Face | Middle layer (traces) | microSD bridge |
-|---|---|---|---|---|
-| **Capri** | Crimson pink | Black | Neon green | Crimson pink |
-| **Lucy** | White | Black | Cyan | Magenta |
-| **David** | Neon yellow | Black | Green | Black |
-| **Rebecca** | Navy (charcoal end caps) | Black | Mint | Hot pink |
-| **Kiwi** | White | Purple | Lavender | White |
-| **Adam Smasher** | Gunmetal | Black | Red | Red |
-| **D** | Blue | Black | Ice blue | Red |
-| **Roman Carax** | Charcoal | Black | Amber | Red |
-| **Talia Yang** | Hot pink | Black | Hot pink | Black |
-
-- Every theme works on v2 too. On v2, "Body" means the front frames and rear bodies.
+- Every theme works on v2 too.
 - The [3D viewer](https://mominmansoor.github.io/cyberpunk-usb-3d-print/) has a colour picker for each part, so you can try your own before printing.
 - Each theme is also in [`images/themes/`](images/themes) as a transparent PNG.
 
 These are fan colourways, not official merchandise.
 
 ---
+
+> **Please be sure to resize the model to fit your USB.**
 
 ## How it works
 
@@ -71,32 +57,6 @@ face panel  ·  middle layer  ·  body half  ·  USB drive  ·  body half  ·  m
   - Two flexible latch arms click it in place, and it stays put when you shake the stick.
   - Pull it out by the small trapezium bumps on its top and bottom.
   - Slide the card into the tray from the open end. It drops over a small lip and stays there.
-
----
-
-## Fitting your USB: the public version must be sized to your drive
-
-USB sticks are all different, so this public version has a plain rectangular pocket at the front. By default it fits a standard USB-A plug end or a slim stick:
-
-- **Pocket:** 12 × 4.5 mm, 20 mm deep. 12 mm sticks out of the front, which is enough for a USB-A plug to seat fully.
-- **Crush ribs:** small ribs along the pocket sides squash slightly so the drive sits snug.
-
-**Your USB will probably need a different size.** Measure it with calipers, then edit the numbers at the top of [`source/cyberpunk_usb.py`](source/cyberpunk_usb.py):
-
-```python
-"public": dict(DRIVE_W=12.0,   # width of your drive
-               DRIVE_T=4.5,    # thickness
-               DRIVE_L=32.0,   # total length (DRIVE_OUT of it sticks out the front)
-               DRIVE_OUT=12.0,
-               FIT_W=0.1,      # side clearance per side
-               RIB_H=0.25,     # crush-rib height
-               LOOP=False, ...)
-```
-
-Then run `python3 cyberpunk_usb.py`, which needs `pip install manifold3d shapely trimesh numpy matplotlib`. You get new STLs that fit your drive exactly.
-
-- **Keyring loop:** if your drive has one, set `LOOP=True` and enter the loop opening's size. A peg through the loop then locks the drive in, so it can't pull out when you unplug it.
-- **Test first:** print one bottom half and test the fit before printing everything. Printers vary by about 0.1 mm.
 
 ---
 
@@ -118,7 +78,7 @@ The middle layer is a thin flat sheet that sits in a 0.3 mm step under each face
 
 ## Printing
 
-The `print-files` folder has a ready-made **Orca Slicer project** for each version. The projects are set up for a Flashforge Adventurer 5M Pro, and each one opens with one build plate per colour:
+The `print-files` folder has a ready-made **3MF project** for each version. Each one opens with one build plate per colour:
 
 | Plate | v1 Long | v2 Short |
 |---|---|---|
@@ -127,7 +87,7 @@ The `print-files` folder has a ready-made **Orca Slicer project** for each versi
 | 3 | microSD bridge (dark red) | Face panels and bridge (dark red) |
 | 4 | Middle layer, optional (green) | Middle layer, optional (green) |
 
-Open a project with File → Open Project and choose to load it **as a project**. You can change the printer and filament afterwards. Every part is already in its print orientation. The STLs are in `stl/` if you use another slicer, and GitHub shows them in 3D right in the browser.
+Open it in your slicer as a project. Every part is already in its print orientation. The STLs are in `stl/` if you use another slicer, and GitHub shows them in 3D right in the browser.
 
 **Settings I recommend:**
 - PLA or PLA+ at 0.2 mm layers and 100% infill.
@@ -167,8 +127,7 @@ No admin rights are needed, and each one has an uninstall script. See [`capri-tr
 ## Credits
 
 - **Designed with the help of Capri.** I designed this with Capri while building the original.
-- **CAD rebuild:** after I lost the original files, the parametric model was rebuilt with Claude (Anthropic).
-- **Inspiration:** a cool toy a friend of mine made.
+- **Claude** helped me build the 3D models on the website.
 
 ## License
 
