@@ -57,15 +57,32 @@ function Start-Capri([string]$root) {
     # just brings her back. (Her hidden input-recovery helper is also named Capri.exe and can
     # outlive her, which fooled a process-name check.)
     try {
-        Start-Process -FilePath $target -WorkingDirectory (Split-Path $target)
+        # Launched through Explorer, like a double-click, so Capri isn't a child of this watcher
+        Start-Process -FilePath "explorer.exe" -ArgumentList "`"$target`""
         Log "Key found on $root; started $target"
     } catch {
         Log "Key found on $root; failed to start ${target}: $($_.Exception.Message)"
     }
 }
 
+# Ignore Ctrl+C / Ctrl+Break sent to this hidden console, which used to stop the watcher
+try {
+    Add-Type -Namespace CapriTrigger -Name Console -MemberDefinition '[DllImport("kernel32.dll")] public static extern bool SetConsoleCtrlHandler(System.IntPtr handler, bool add);'
+    [void][CapriTrigger.Console]::SetConsoleCtrlHandler([IntPtr]::Zero, $true)
+} catch { }
+
 Log "Watcher started (checking every $IntervalSeconds s). Capri: $(Find-Capri)"
+
+# Drives that already have the key when the watcher starts count as seen, so a restart of the
+# watcher never opens Capri by itself. Only plugging the key in does.
 $seen = @{}
+try {
+    foreach ($d in [IO.DriveInfo]::GetDrives()) {
+        if ($d.IsReady -and $d.DriveType -ne [IO.DriveType]::Network -and (Test-KeyDrive $d.RootDirectory.FullName)) {
+            $seen[$d.RootDirectory.FullName] = $true
+        }
+    }
+} catch { }
 
 while ($true) {
     $now = @{}

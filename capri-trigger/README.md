@@ -17,7 +17,7 @@ No admin rights are needed on any of them.
 
 ## How each one works
 
-- **Windows:** a scheduled task starts `capri-watch.ps1` hidden when you log in. Every 2 seconds it checks your drives for `capri.key` and opens Capri once each time the key drive appears. It keeps a short log at `%LOCALAPPDATA%\CapriTrigger\log.txt`. It finds Capri in the usual install folders or from the Start menu shortcut. If yours is somewhere else, pass the path: `install.ps1 -CapriPath "C:\...\Capri.exe"`.
+- **Windows:** a scheduled task starts `capri-watch.ps1` hidden when you log in, and checks every minute that it's still running, restarting it if anything stopped it. Every 2 seconds it checks your drives for `capri.key` and opens Capri once each time the key drive appears. It keeps a short log at `%LOCALAPPDATA%\CapriTrigger\log.txt`. It finds Capri in the usual install folders or from the Start menu shortcut. If yours is somewhere else, pass the path: `install.ps1 -CapriPath "C:\...\Capri.exe"`.
 - **macOS:** a launchd agent with `StartOnMount` runs `capri-watch.sh` whenever any drive mounts, and it runs `open -a Capri` if a mounted drive has the key. The first time, macOS may ask to let `bash` read a removable volume. Click Allow.
 - **Linux:** an autostart entry runs `capri-watch.sh` after you log in. Every 2 seconds it looks at mounted drives under `/media`, `/run/media` and `/mnt`, and starts Capri once each time the key drive appears. Pass the path to your unpacked `Capri/Capri` binary when installing.
 
