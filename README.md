@@ -19,6 +19,8 @@ In the viewer you can spin the model, pull it apart layer by layer, slide the mi
 | Body | One piece per half | Rear body and front frame per half, joined by two sliding dovetail rails |
 | Printed parts | 8 | 8 |
 
+![v1 Long and v2 Short side by side, assembled](images/v1-v2-assembled.jpg)
+
 ![v1 Long and v2 Short side by side, both opened up to show every layer](images/v1-v2-exploded.jpg)
 
 The design shows the circuit pattern on both faces, so it looks the same whichever way up it sits.
