@@ -1,6 +1,6 @@
 # Cyberpunk USB 3D Print
 
-A 3D-printable, two-sided circuit-trace USB enclosure with a hidden pull-out microSD card holder. I built it as a plug-in starter key for **Capri Desktop**: plug it in and Capri starts.
+A 3D-printable, two-sided circuit-trace USB enclosure with a hidden pull-out microSD card holder. I built it as a plug-in starter key for **[Capri Desktop](https://github.com/lachydotmcg/capri-desktop)**: plug it in and Capri starts ([how](#capri-trigger-plug-in-to-start-capri)).
 
 ![The printed Cyberpunk USB, black face panels with a blue middle layer showing through the circuit traces](images/cyberpunk-usb-photo.jpg)
 
@@ -26,6 +26,32 @@ In the viewer you can spin the model, pull it apart layer by layer, slide the mi
 ![v2 exploded view](images/v2-exploded.jpg)
 
 The design shows the circuit pattern on both faces, so it looks the same whichever way up it sits.
+
+---
+
+## Character themes
+
+The pictures above are the original colours, but every part prints in a single colour, so you can make it in any colourway you like. Here are nine themes inspired by *Cyberpunk: Edgerunners*, all on the v1 long version:
+
+![Nine character themes for the v1 Cyberpunk USB: Capri, Lucy, David, Rebecca, Kiwi, Adam Smasher, D, Roman Carax and Talia Yang](images/themes-grid.jpg)
+
+| Theme | Body | Face | Middle layer (traces) | microSD bridge |
+|---|---|---|---|---|
+| **Capri** | Crimson pink | Black | Neon green | Crimson pink |
+| **Lucy** | White | Black | Cyan | Magenta |
+| **David** | Neon yellow | Black | Green | Black |
+| **Rebecca** | Navy (charcoal end caps) | Black | Mint | Hot pink |
+| **Kiwi** | White | Purple | Lavender | White |
+| **Adam Smasher** | Gunmetal | Black | Red | Red |
+| **D** | Blue | Black | Ice blue | Red |
+| **Roman Carax** | Charcoal | Black | Amber | Red |
+| **Talia Yang** | Hot pink | Black | Hot pink | Black |
+
+- Every theme works on v2 too. On v2, "Body" means the front frames and rear bodies.
+- The [3D viewer](https://mominmansoor.github.io/cyberpunk-usb-3d-print/) has a colour picker for each part, so you can try your own before printing.
+- Each theme is also in [`images/themes/`](images/themes) as a transparent PNG.
+
+These are fan colourways, not official merchandise.
 
 ---
 
@@ -121,9 +147,20 @@ Open a project with File → Open Project and choose to load it **as a project**
 
 ---
 
-## Using it as a Capri starter
+## Capri trigger: plug in to start Capri
 
-This is the hardware half of a "plug in to start Capri" key. One thing to know: Windows hasn't let USB drives launch programs by themselves since Windows 7. To make the key start Capri, you need a small helper on the computer that watches for this specific drive and launches Capri when it appears. On Windows that's a scheduled task triggered when the device connects, on Linux a udev rule, and on macOS a launchd agent.
+USB drives can't launch programs on their own (Windows removed AutoRun in Windows 7), so the trigger is in two halves, both in [`capri-trigger/`](capri-trigger):
+
+1. **On the USB:** copy [`capri-trigger/usb/capri.key`](capri-trigger/usb/capri.key) to the top folder of the drive inside the stick.
+2. **On your computer:** install the small watcher once. It waits for a drive with `capri.key` and starts Capri Desktop when you plug it in. Other USB sticks are ignored.
+
+| System | Install |
+|---|---|
+| Windows 10/11 | `powershell -ExecutionPolicy Bypass -File capri-trigger\windows\install.ps1` |
+| macOS | `bash capri-trigger/macos/install.sh` |
+| Linux | `bash capri-trigger/linux/install.sh ~/Capri/Capri` |
+
+No admin rights are needed, and each one has an uninstall script. See [`capri-trigger/README.md`](capri-trigger/README.md) for details. Tip: turn off Capri's own "Start with Windows" switch if you want the USB to be the only thing that starts her.
 
 ---
 
