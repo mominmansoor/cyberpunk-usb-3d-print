@@ -1,6 +1,6 @@
 # Capri USB trigger for Windows.
 # Checks your drives every 2 seconds. When a drive with capri.key in its top folder
-# appears, it starts Capri Desktop (unless Capri is already running). Once per plug-in.
+# appears, it starts Capri Desktop (or brings her back if she's already open). Once per plug-in.
 # install.ps1 sets this up to run hidden every time you log in.
 # Log: %LOCALAPPDATA%\CapriTrigger\log.txt
 
