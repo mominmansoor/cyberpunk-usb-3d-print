@@ -135,7 +135,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     </div>
 
     <div>
-      <p class="label"><span>Colour schemes</span></p>
+      <p class="label"><span>Colour schemes · character themes</span></p>
       <div class="presets" id="presets"></div>
     </div>
 
@@ -174,21 +174,28 @@ const PALETTE = [
   ["White", 0xeeebe4, 0, .6], ["Red", 0xc8201a, .05, .55], ["Dark red", 0x6e1016, .05, .55], ["Orange", 0xe0631c, .05, .55],
   ["Yellow", 0xe7c21f, .05, .55], ["Gold", 0xc9a043, .5, .4], ["Green", 0x74dd74, 0, .45], ["Forest", 0x2f7d3a, .05, .55],
   ["Teal", 0x1e9a95, .05, .55], ["Blue", 0x2563c9, .05, .55], ["Navy", 0x1d2c55, .05, .55], ["Purple", 0x6b3fa0, .05, .55],
-  ["Pink", 0xe36b9c, .05, .55],
+  ["Pink", 0xe36b9c, .05, .55], ["Hot pink", 0xff3fa4, .05, .5], ["Magenta", 0xc81d8c, .05, .5], ["Cyan", 0x22d3ee, .05, .45],
+  ["Ice blue", 0x4fb4ff, .05, .45], ["Mint", 0x5fe3b6, .05, .5], ["Lavender", 0xa98be0, .05, .55], ["Neon yellow", 0xf5df1c, .05, .5],
+  ["Amber", 0xf0a020, .05, .5], ["Neon green", 0x00fa6d, .05, .45], ["Gunmetal", 0x4a4f57, .4, .45], ["Crimson pink", 0xfc0447, .05, .45],
 ];
 const PAL = Object.fromEntries(PALETTE.map(p => [p[0], p]));
 // role of each part group, so schemes recolour both versions consistently
 const ROLE = {
-  v1: { half: "frame", face: "face", endcap: "face", bridge: "accent", green: "trace" },
+  v1: { half: "frame", face: "face", endcap: "cap", bridge: "accent", green: "trace" },
   v2: { front: "frame", rear: "body", face: "face", bridge: "accent", green: "trace" },
 };
+// "Original" plus character themes inspired by Cyberpunk: Edgerunners (fan colourways, not official)
 const SCHEMES = {
-  "Original": null,
-  "Stealth":  { frame: "Charcoal", body: "Black", face: "Black", accent: "Red", trace: "Red" },
-  "Arctic":   { frame: "Silver", body: "White", face: "White", accent: "Navy", trace: "Blue" },
-  "Ocean":    { frame: "Gray", body: "Navy", face: "Blue", accent: "Teal", trace: "Teal" },
-  "Toxic":    { frame: "Black", body: "Charcoal", face: "Charcoal", accent: "Green", trace: "Green" },
-  "Royal":    { frame: "Gold", body: "Purple", face: "Purple", accent: "Gold", trace: "Yellow" },
+  "Original":     null,
+  "Capri":        { frame: "Crimson pink", body: "Crimson pink", face: "Black", accent: "Crimson pink", trace: "Neon green" },
+  "Lucy":         { frame: "White", body: "White", face: "Black", accent: "Magenta", trace: "Cyan" },
+  "David":        { frame: "Neon yellow", body: "Neon yellow", face: "Black", accent: "Black", trace: "Green" },
+  "Rebecca":      { frame: "Navy", body: "Navy", face: "Black", accent: "Hot pink", trace: "Mint", cap: "Charcoal" },
+  "Kiwi":         { frame: "White", body: "White", face: "Purple", accent: "White", trace: "Lavender" },
+  "Adam Smasher": { frame: "Gunmetal", body: "Gunmetal", face: "Black", accent: "Red", trace: "Red" },
+  "D":            { frame: "Blue", body: "Blue", face: "Black", accent: "Red", trace: "Ice blue" },
+  "Roman Carax":  { frame: "Charcoal", body: "Black", face: "Black", accent: "Red", trace: "Amber" },
+  "Talia Yang":   { frame: "Hot pink", body: "Hot pink", face: "Black", accent: "Black", trace: "Hot pink" },
 };
 const groupOf = key => key.replace(/_(top|bottom)$/, "");
 const chosen = { v1: {}, v2: {} };     // group -> palette name
@@ -340,6 +347,7 @@ function showVersion(ver) {
         const mat = objs[k].material;
         mat.color.setHex(p[1]); mat.metalness = p[2]; mat.roughness = p[3];
         mat.emissive.setHex(g === "green" ? p[1] : 0x000000); mat.emissiveIntensity = g === "green" ? .22 : 0;
+        if (mat.toneMapped !== (g !== "green")) { mat.toneMapped = g !== "green"; mat.needsUpdate = true; }
       }
       sw.style.background = "#" + p[1].toString(16).padStart(6, "0");
       sub.textContent = pname + (g === "green" ? " · paper or thin print" : "");
@@ -397,7 +405,7 @@ for (const name of Object.keys(SCHEMES)) {
   b.addEventListener("click", () => {
     for (const ver of ["v1", "v2"]) {
       chosen[ver] = {};
-      if (SCHEMES[name]) for (const [g, role] of Object.entries(ROLE[ver])) chosen[ver][g] = SCHEMES[name][role];
+      if (SCHEMES[name]) for (const [g, role] of Object.entries(ROLE[ver])) chosen[ver][g] = SCHEMES[name][role] || SCHEMES[name].face;
     }
     saveChoice();
     for (const li of list.children) if (li._apply) li._apply(chosen[current][li._group] || li._default);
