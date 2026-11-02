@@ -26,3 +26,13 @@ No admin rights are needed on any of them.
 - Capri's own **Start with Windows** switch is on by default. Turn it off if you want the USB to be the only thing that wakes her up.
 - The key file must start with the line `CAPRI-KEY`. You can rename the drive or add other files freely.
 - Pulling the USB out doesn't close Capri. Close her from the tray as usual.
+
+## Optional: push-to-talk with LocalFlow (Windows)
+
+[`windows/capri-talk.ahk`](windows/capri-talk.ahk) is an [AutoHotkey v2](https://www.autohotkey.com/) script for talking to Capri without a wake word, using [LocalFlow](https://github.com/mominmansoor/localflow) for dictation:
+
+- Hold **Right Ctrl** on its own for 3 seconds. It beeps, Capri's typing box opens and LocalFlow starts listening.
+- Keep holding and talk. Let go, and your words are pasted into Capri's box and sent.
+- Tapping Right Ctrl or using it in shortcuts works as normal.
+
+To run it at login, put a shortcut to the script in your Startup folder (`Win+R`, `shell:startup`). Change `HOLD_MS` at the top to make the hold shorter.
