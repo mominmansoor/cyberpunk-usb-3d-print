@@ -101,11 +101,20 @@ Open it in your slicer as a project. Every part is already in its print orientat
 
 ## Assembly
 
-1. **v2 only:** in each half, slide the front frame's two rails into the rear body until they click.
+**v2 assembly:**
+
+1. In each half, slide the front frame's two rails into the rear body until they click.
 2. Put your USB drive in the bottom half, with the plug sticking out of the front.
 3. Press the top half on until the snap pins click.
-4. On each face, lay the middle layer in its step, then glue the face panel over it. On v1, add the end caps.
+4. On each face, lay the middle layer in its step, then glue the face panel over it.
 5. Push the microSD bridge into its slot until both latches click.
+
+**v1 assembly:**
+
+1. Put your USB drive in the bottom half, with the plug sticking out of the front.
+2. Press the top half on until the snap pins click.
+3. On each face, lay the middle layer in its step, glue the face panel over it, then add the end cap.
+4. Push the microSD bridge into its slot until both latches click.
 
 ---
 
